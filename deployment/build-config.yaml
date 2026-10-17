@@ -12,8 +12,8 @@ spec:
     git:
       uri: "https://github.com/airdrops711-gif/dropshipping-platform.git"
       ref: "main"
-    contextDir: "."
-    dockerfilePath: "backend/Dockerfile"
+    contextDir: "backend"
+    dockerfilePath: "Dockerfile"
   strategy:
     type: Docker
     dockerStrategy: {}
@@ -35,8 +35,8 @@ spec:
     git:
       uri: "https://github.com/airdrops711-gif/dropshipping-platform.git"
       ref: "main"
-    contextDir: "."
-    dockerfilePath: "frontend/Dockerfile"
+    contextDir: "frontend"
+    dockerfilePath: "Dockerfile"
   strategy:
     type: Docker
     dockerStrategy: {}
