@@ -10,7 +10,7 @@ spec:
       name: dropshipping-backend:latest
   source:
     git:
-      uri: "https://github.com/airdrops711/dropshipping-platform.git"
+      uri: "https://github.com/airdrops711-gif/dropshipping-platform.git"
       ref: "main"
     contextDir: "."
     dockerfilePath: "backend/Dockerfile"
@@ -33,7 +33,7 @@ spec:
       name: dropshipping-frontend:latest
   source:
     git:
-      uri: "https://github.com/airdrops711/dropshipping-platform.git"
+      uri: "https://github.com/airdrops711-gif/dropshipping-platform.git"
       ref: "main"
     contextDir: "."
     dockerfilePath: "frontend/Dockerfile"

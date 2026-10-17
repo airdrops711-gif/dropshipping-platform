@@ -1,0 +1,17 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: dropshipping-backend
+  namespace: saif711-dev
+spec:
+  lookupPolicy:
+    local: false
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: dropshipping-frontend
+  namespace: saif711-dev
+spec:
+  lookupPolicy:
+    local: false
