@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dropshipping.tn/sitemap.xml
