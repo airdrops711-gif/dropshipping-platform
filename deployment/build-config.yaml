@@ -1,0 +1,45 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: backend-build
+  namespace: saif711-dev
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: dropshipping-backend:latest
+  source:
+    git:
+      uri: "https://github.com/airdrops711/dropshipping-platform.git"
+      ref: "main"
+    contextDir: "."
+    dockerfilePath: "backend/Dockerfile"
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend-build
+  namespace: saif711-dev
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: dropshipping-frontend:latest
+  source:
+    git:
+      uri: "https://github.com/airdrops711/dropshipping-platform.git"
+      ref: "main"
+    contextDir: "."
+    dockerfilePath: "frontend/Dockerfile"
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange

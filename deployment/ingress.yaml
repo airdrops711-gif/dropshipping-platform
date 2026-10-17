@@ -2,11 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: dropshipping-ingress
-  namespace: dropshipping-platform
+  namespace: saif711-dev
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
+  ingressClassName: "nginx"
   rules:
   - host: dropshipping.tn
     http:
@@ -15,6 +17,17 @@ spec:
         pathType: Prefix
         backend:
           service:
+            name: frontend
+            port:
+              number: 3000
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
             name: backend
             port:
               number: 8000
+  tls:
+  - hosts:
+    - dropshipping.tn
+    secretName: dropshipping-tls-cert
