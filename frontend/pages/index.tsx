@@ -29,7 +29,7 @@ export default function Home() {
     <Layout>
       <NextSeo
         title="Dropshipping Tunisia - Best Products at Best Prices"
-        description="Discover the best products in Tunisia at the most competitive prices. Fast delivery across Tunisia. Shop electronics, fashion, home & more."
+        description="Discover the best products in Tunisia at the most competitive prices. Fast delivery across Tunisia."
         canonical="https://dropshipping.tn"
         openGraph={{
           url: 'https://dropshipping.tn',
@@ -39,58 +39,61 @@ export default function Home() {
         }}
       />
 
-      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Dropshipping Tunisia
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
-            Best Products, Best Prices, Fast Delivery Across Tunisia
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6">
+              Best Products, Best Prices
+            </h1>
+            <p className="text-base sm:text-lg lg:text-xl text-blue-100 mb-6 sm:mb-8">
+              Discover amazing products from Tunisia and around the world.
+              Fast delivery, secure payments, and excellent customer service.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Link href="/categories" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors text-center">
+                Shop Now
+              </Link>
+              <Link href="/deals" className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors text-center">
+                View Deals
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Shop by Category</h2>
+          <Link href="/categories" className="text-blue-600 text-sm font-medium hover:underline">
+            View all →
+          </Link>
+        </div>
+        <CategoryGrid categories={categories} />
+      </section>
+
+      {/* Featured Products */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Featured Products</h2>
+          <Link href="/deals" className="text-blue-600 text-sm font-medium hover:underline">
+            View all →
+          </Link>
+        </div>
+        <ProductGrid products={featuredProducts} />
+      </section>
+
+      {/* Promo Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl text-white p-6 sm:p-8 lg:p-12 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3">Free Delivery Across Tunisia</h2>
+          <p className="text-orange-100 mb-6 max-w-xl mx-auto">
+            Get free shipping on all orders above 200 TND. Fast delivery to all regions.
           </p>
-          <div className="flex justify-center space-x-4">
-            <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-              Shop Now
-            </button>
-            <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
-              Learn More
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
-          <CategoryGrid categories={categories} />
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
-          <ProductGrid products={featuredProducts} />
-        </div>
-      </section>
-
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-5xl mb-4">🚚</div>
-              <h3 className="text-xl font-bold mb-2">Fast Delivery</h3>
-              <p className="text-gray-600">Delivery within 2-3 days across Tunisia</p>
-            </div>
-            <div>
-              <div className="text-5xl mb-4">💰</div>
-              <h3 className="text-xl font-bold mb-2">Best Prices</h3>
-              <p className="text-gray-600">Guaranteed lowest prices in Tunisia</p>
-            </div>
-            <div>
-              <div className="text-5xl mb-4">🔄</div>
-              <h3 className="text-xl font-bold mb-2">Easy Returns</h3>
-              <p className="text-gray-600">30-day return policy, no questions asked</p>
-            </div>
-          </div>
+          <Link href="/categories" className="bg-white text-orange-600 px-6 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors inline-block">
+            Start Shopping
+          </Link>
         </div>
       </section>
     </Layout>
