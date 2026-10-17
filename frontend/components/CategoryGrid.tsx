@@ -5,34 +5,40 @@ interface Category {
   color: string
 }
 
-interface CategoryGridProps {
-  categories: Category[]
+const colorClasses: Record<string, { bg: string; border: string }> = {
+  blue: { bg: 'bg-blue-100', border: 'border-blue-500' },
+  pink: { bg: 'bg-pink-100', border: 'border-pink-500' },
+  green: { bg: 'bg-green-100', border: 'border-green-500' },
+  orange: { bg: 'bg-orange-100', border: 'border-orange-500' },
+  purple: { bg: 'bg-purple-100', border: 'border-purple-500' },
+  indigo: { bg: 'bg-indigo-100', border: 'border-indigo-500' },
+  red: { bg: 'bg-red-100', border: 'border-red-500' },
 }
 
-export default function CategoryGrid({ categories }: CategoryGridProps) {
-  const colorClasses: Record<string, string> = {
-    blue: 'bg-blue-100 text-blue-600',
-    pink: 'bg-pink-100 text-pink-600',
-    green: 'bg-green-100 text-green-600',
-    orange: 'bg-orange-100 text-orange-600',
-    purple: 'bg-purple-100 text-purple-600',
-    indigo: 'bg-indigo-100 text-indigo-600',
-    red: 'bg-red-100 text-red-600',
-  }
-
+export default function CategoryGrid({ categories }: { categories: Category[] }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-      {categories.map((category) => (
-        <div
-          key={category.slug}
-          className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition cursor-pointer"
-        >
-          <div className={`w-16 h-16 mx-auto rounded-full ${colorClasses[category.color]} flex items-center justify-center text-2xl mb-3`}>
-            {category.nameAr}
-          </div>
-          <h3 className="font-semibold text-gray-800 text-sm">{category.name}</h3>
-        </div>
-      ))}
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
+      {categories.map((cat) => {
+        const colors = colorClasses[cat.color] || colorClasses.blue
+        return (
+          <a
+            key={cat.slug}
+            href={`/products?category=${cat.slug}`}
+            className="group bg-white rounded-xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300 text-center border-b-4 hover:-translate-y-1"
+            style={{ borderBottomWidth: '4px', borderBottomStyle: 'solid', borderBottomColor: colors.border.replace('border-', '#').replace('500', '500') }}
+          >
+            <div
+              className={`w-12 h-12 sm:w-14 sm:h-14 mx-auto rounded-full flex items-center justify-center text-2xl mb-3 ${colors.bg}`}
+            >
+              📦
+            </div>
+            <h3 className="font-bold text-gray-800 text-sm sm:text-base group-hover:text-blue-600 transition-colors">
+              {cat.name}
+            </h3>
+            <p className="text-xs text-gray-500 mt-1 hidden sm:block">{cat.nameAr}</p>
+          </a>
+        )
+      })}
     </div>
   )
 }

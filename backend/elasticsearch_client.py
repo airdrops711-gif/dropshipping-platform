@@ -1,7 +1,7 @@
 import os
 from typing import Optional, List, Dict, Any
 from elasticsearch import AsyncElasticsearch
-from elasticsearch.exceptions import ElasticsearchException
+from elasticsearch.exceptions import NotFoundError, RequestError, TransportError
 
 class ElasticsearchClient:
     def __init__(self):
