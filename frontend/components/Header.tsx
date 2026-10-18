@@ -2,19 +2,25 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, ShoppingCart, Search, User, ChevronDown } from 'lucide-react'
+import { Menu, X, ShoppingCart, Search, User, LogOut, ChevronRight } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
+import { useCart } from '@/context/CartContext'
+
+const navLinks = [
+  { name: 'Home', href: '/' },
+  { name: 'Categories', href: '/categories' },
+  { name: 'Deals', href: '/deals' },
+  { name: 'About', href: '/about' },
+  { name: 'Contact', href: '/contact' },
+]
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const { user, logout, isAuthenticated, isLoading } = useAuth()
+  const { itemCount } = useCart()
 
-  const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Categories', href: '/categories' },
-    { name: 'Deals', href: '/deals' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-  ]
+  if (isLoading) return null
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
@@ -40,7 +46,13 @@ export default function Header() {
               </Link>
             ))}
             <Link href="/cart" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1">
-              <ShoppingCart className="w-4 h-4" /> Cart
+              <ShoppingCart className="w-4 h-4" />
+              <span className="font-medium">Cart</span>
+              {itemCount > 0 && (
+                <span className="ml-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Link>
           </nav>
 
@@ -53,9 +65,23 @@ export default function Header() {
             >
               <Search className="w-5 h-5" />
             </button>
-            <Link href="/account" className="text-gray-600 hover:text-blue-600 transition-colors" aria-label="Account">
-              <User className="w-5 h-5" />
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-2 pl-4 border-l border-gray-200">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900">{user?.name || user?.email}</p>
+                  <p className="text-xs text-gray-500">{user?.is_admin ? 'Admin' : 'Customer'}</p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-sm font-medium text-gray-700">
+                    {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <Link href="/account" className="text-gray-600 hover:text-blue-600 transition-colors" aria-label="Account">
+                <User className="w-5 h-5" />
+              </Link>
+            )}
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="md:hidden text-gray-600 hover:text-blue-600"
@@ -88,6 +114,21 @@ export default function Header() {
             >
               <ShoppingCart className="w-4 h-4" /> Cart
             </Link>
+            {isAuthenticated ? (
+              <button
+                onClick={logout}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors rounded-lg"
+              >
+                <LogOut className="w-4 h-4" /> Sign Out
+              </button>
+            ) : (
+              <Link
+                href="/account"
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 flex items-center gap-2"
+              >
+                <User className="w-4 h-4" /> Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}

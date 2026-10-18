@@ -1,7 +1,13 @@
+'use client'
+
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { formatPrice } from '@/lib/utils'
+import { api } from '@/lib/api'
+import { useState, useEffect } from 'react'
+import AddToCartButton from '@/components/AddToCartButton'
 
 interface Product {
   id: string
@@ -15,21 +21,38 @@ interface Product {
   stock?: number
 }
 
-const mockProduct: Product = {
-  id: '1',
-  name: 'iPhone 15 Pro',
-  nameAr: 'آيفون 15 برو',
-  price: 3299,
-  currency: 'TND',
-  image: 'https://images.unsplash.com/photo-1678928136917-9e274e39e993?w=800&q=80',
-  rating: 4.8,
-  description: 'The iPhone 15 Pro features a titanium design, A17 Pro chip, and advanced camera system.',
-  stock: 15,
-}
-
 export default function ProductDetail() {
   const params = useParams()
-  const product = mockProduct
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!params.id) return
+    const id = Number(params.id)
+    api.getProduct(id).then((res: any) => {
+      setProduct({
+        id: res.id,
+        name: res.name_en || res.name,
+        nameAr: res.name_ar,
+        price: res.price,
+        currency: res.currency,
+        image: res.main_image || (res.images?.[0] || ''),
+        rating: res.rating,
+        description: res.description_en || res.description,
+        stock: res.stock_quantity,
+      })
+    }).finally(() => setLoading(false))
+  }, [params?.id])
+
+  if (!product) {
+    return (
+      <Layout title="Loading...">
+        <div className="max-w-7xl mx-auto px-4 py-12 flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    )
+  }
 
   return (
     <Layout title={product.name} description={product.description}>
@@ -48,9 +71,9 @@ export default function ProductDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <nav className="mb-6 text-sm text-gray-500">
-          <a href="/" className="text-blue-600 hover:underline">
+          <Link href="/" className="text-blue-600 hover:underline">
             Home
-          </a>
+          </Link>
           <span className="mx-2 text-gray-300">/</span>
           <span className="text-gray-900">{product.name}</span>
         </nav>
@@ -85,10 +108,8 @@ export default function ProductDetail() {
                 </span>
               </div>
               <div className="space-y-4">
-                <button className="w-full btn-primary">
-                  Add to Cart
-                </button>
-                <button className="w-full btn-outline">
+                <AddToCartButton product={product as any} />
+                <button className="w-full border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors">
                   Buy Now
                 </button>
               </div>
@@ -99,28 +120,6 @@ export default function ProductDetail() {
               <p className="text-gray-600 leading-relaxed">
                 {product.description || 'High-quality product with excellent features and reliable performance.'}
               </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Specifications</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li className="flex justify-between">
-                  <span>Brand</span>
-                  <span className="font-medium text-gray-900">Apple</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Model</span>
-                  <span className="font-medium text-gray-900">iPhone 15 Pro</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Storage</span>
-                  <span className="font-medium text-gray-900">128GB</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Color</span>
-                  <span className="font-medium text-gray-900">Natural Titanium</span>
-                </li>
-              </ul>
             </div>
           </div>
         </div>

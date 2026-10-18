@@ -3,6 +3,8 @@ import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import CategoryGrid from '@/components/CategoryGrid'
 import Head from 'next/head'
+import { api } from '@/lib/api'
+import { useState, useEffect } from 'react'
 
 const categories = [
   { name: 'Electronics', nameAr: 'إلكترونيات', slug: 'electronics', color: 'blue' },
@@ -14,14 +16,14 @@ const categories = [
   { name: 'Toys', nameAr: 'ألعاب', slug: 'toys', color: 'red' },
 ]
 
-const featuredProducts = [
-  { id: 1, name: 'iPhone 15 Pro', nameAr: 'آيفون 15 برو', price: 3299, currency: 'TND', image: 'https://images.unsplash.com/photo-1678928136917-9e274e39e993?w=600&q=80', rating: 4.8 },
-  { id: 2, name: 'Samsung Galaxy S24', nameAr: 'سامسونج جالكسي S24', price: 2899, currency: 'TND', image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=600&q=80', rating: 4.7 },
-  { id: 3, name: 'MacBook Air M3', nameAr: 'ماك بوك إير M3', price: 4599, currency: 'TND', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80', rating: 4.9 },
-  { id: 4, name: 'Sony WH-1000XM5', nameAr: 'سوني WH-1000XM5', price: 899, currency: 'TND', image: 'https://images.unsplash.com/photo-1583394838336-acd677ed66f1?w=600&q=80', rating: 4.8 },
-]
-
 export default function Home() {
+  const [featured, setFeatured] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getFeatured(8).then(setFeatured).finally(() => setLoading(false))
+  }, [])
+
   return (
     <Layout
       title="Dropshipping Tunisia - Best Products at Best Prices"
@@ -34,7 +36,6 @@ export default function Home() {
         <meta property="og:description" content="Best products, best prices, fast delivery in Tunisia" />
         <meta property="og:url" content="https://dropshipping.tn" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="/og-image.jpg" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Dropshipping Tunisia" />
         <meta name="twitter:description" content="Best products, best prices, fast delivery in Tunisia" />
@@ -82,7 +83,13 @@ export default function Home() {
             View all →
           </Link>
         </div>
-        <ProductGrid products={featuredProducts} />
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <ProductGrid products={featured} />
+        )}
       </section>
 
       {/* Promo Banner */}

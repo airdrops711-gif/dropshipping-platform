@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
+import { api } from '@/lib/api'
 import { Plus, Search, Edit, Trash2, CheckCircle, Clock } from 'lucide-react'
 
 interface Product {
@@ -14,19 +15,19 @@ interface Product {
   created_at: string
 }
 
-const mockProducts: Product[] = [
-  { id: 1, name: 'iPhone 15 Pro', price: 3299, currency: 'TND', status: 'active', stock_quantity: 15, category: 'Electronics', created_at: '2026-10-18' },
-  { id: 2, name: 'Samsung Galaxy S24', price: 2899, currency: 'TND', status: 'active', stock_quantity: 8, category: 'Electronics', created_at: '2026-10-17' },
-  { id: 3, name: 'MacBook Air M3', price: 4599, currency: 'TND', status: 'pending_review', stock_quantity: 5, category: 'Electronics', created_at: '2026-10-16' },
-  { id: 4, name: 'Sony WH-1000XM5', price: 899, currency: 'TND', status: 'active', stock_quantity: 22, category: 'Electronics', created_at: '2026-10-15' },
-  { id: 5, name: 'Nike Air Max', price: 599, currency: 'TND', status: 'out_of_stock', stock_quantity: 0, category: 'Fashion', created_at: '2026-10-14' },
-]
-
 export default function AdminProducts() {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredProducts = mockProducts.filter((p) => {
+  useEffect(() => {
+    api.adminListProducts().then((res: any) => {
+      setProducts(res || [])
+    }).finally(() => setLoading(false))
+  }, [])
+
+  const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter
     return matchesSearch && matchesStatus
@@ -53,7 +54,7 @@ export default function AdminProducts() {
             <p className="text-gray-600">Manage your product catalog and inventory.</p>
           </div>
           <div className="flex gap-2">
-            <button className="btn-primary flex items-center gap-2">
+            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Product
             </button>
           </div>
@@ -102,7 +103,13 @@ export default function AdminProducts() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredProducts.map((product) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -115,7 +122,7 @@ export default function AdminProducts() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{product.category}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{product.category || '-'}</td>
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{product.price} {product.currency}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {product.stock_quantity === 0 ? (
@@ -142,14 +149,16 @@ export default function AdminProducts() {
                     </td>
                   </tr>
                 ))}
+                {filteredProducts.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center">
+                      <p className="text-gray-500">No products found.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
-          {filteredProducts.length === 0 && (
-            <div className="p-8 text-center">
-              <p className="text-gray-500">No products found.</p>
-            </div>
-          )}
         </div>
       </div>
     </Layout>

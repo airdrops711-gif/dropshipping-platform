@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
+import { api } from '@/lib/api'
 import { ShoppingCart, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface Order {
@@ -13,32 +15,33 @@ interface Order {
   created_at: string
 }
 
-const mockOrders: Order[] = [
-  { id: 1, order_number: 'TN-20261018-A1B2C3D4', customer_name: 'Ahmed Ben Ali', total_amount: 3299, currency: 'TND', status: 'pending', payment_status: 'pending', created_at: '2026-10-18 01:45:00' },
-  { id: 2, order_number: 'TN-20261018-E5F6G7H8', customer_name: 'Fatima Trabelsi', total_amount: 899, currency: 'TND', status: 'confirmed', payment_status: 'paid', created_at: '2026-10-18 00:30:00' },
-  { id: 3, order_number: 'TN-20261017-I9J0K1L2', customer_name: 'Omar Gharbi', total_amount: 4599, currency: 'TND', status: 'shipped', payment_status: 'paid', created_at: '2026-10-17 22:15:00' },
-  { id: 4, order_number: 'TN-20261017-M3N4O5P6', customer_name: 'Sara Khaldi', total_amount: 599, currency: 'TND', status: 'delivered', payment_status: 'paid', created_at: '2026-10-17 20:00:00' },
-  { id: 5, order_number: 'TN-20261017-Q7R8S9T0', customer_name: 'Youssef Mrad', total_amount: 2899, currency: 'TND', status: 'cancelled', payment_status: 'refunded', created_at: '2026-10-17 18:30:00' },
-]
-
-const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  confirmed: 'bg-blue-100 text-blue-700',
-  processing: 'bg-blue-100 text-blue-700',
-  shipped: 'bg-purple-100 text-purple-700',
-  delivered: 'bg-green-100 text-green-700',
-  cancelled: 'bg-red-100 text-red-700',
-  refunded: 'bg-red-100 text-red-700',
-}
-
-const paymentColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  paid: 'bg-green-100 text-green-700',
-  refunded: 'bg-red-100 text-red-700',
-  failed: 'bg-red-100 text-red-700',
-}
-
 export default function AdminOrders() {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.adminListOrders().then((res: any) => {
+      setOrders(res || [])
+    }).finally(() => setLoading(false))
+  }, [])
+
+  const statusColors: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-700',
+    confirmed: 'bg-blue-100 text-blue-700',
+    processing: 'bg-blue-100 text-blue-700',
+    shipped: 'bg-purple-100 text-purple-700',
+    delivered: 'bg-green-100 text-green-700',
+    cancelled: 'bg-red-100 text-red-700',
+    refunded: 'bg-red-100 text-red-700',
+  }
+
+  const paymentColors: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-700',
+    paid: 'bg-green-100 text-green-700',
+    refunded: 'bg-red-100 text-red-700',
+    failed: 'bg-red-100 text-red-700',
+  }
+
   return (
     <Layout title="Order Management - Admin">
       <Head>
@@ -67,7 +70,13 @@ export default function AdminOrders() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {mockOrders.map((order) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <span className="text-sm font-medium text-gray-900">{order.order_number}</span>
@@ -92,6 +101,13 @@ export default function AdminOrders() {
                     </td>
                   </tr>
                 ))}
+                {orders.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center">
+                      <p className="text-gray-500">No orders found.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

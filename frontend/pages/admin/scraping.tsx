@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
+import { api } from '@/lib/api'
 import { Play, RefreshCw, Clock, Database, AlertTriangle } from 'lucide-react'
 
 interface ScrapingJob {
@@ -13,37 +14,36 @@ interface ScrapingJob {
   error_message?: string
 }
 
-const mockJobs: ScrapingJob[] = [
-  { id: 1, source_name: 'jumia_tn', status: 'completed', products_found: 150, products_added: 142, created_at: '2026-10-18 01:30:00' },
-  { id: 2, source_name: 'makino_tn', status: 'completed', products_found: 89, products_added: 85, created_at: '2026-10-18 00:15:00' },
-  { id: 3, source_name: 'amazon_ma', status: 'failed', products_found: 0, products_added: 0, created_at: '2026-10-17 22:00:00', error_message: 'Connection timeout' },
-]
-
 export default function AdminScraping() {
+  const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [isRunning, setIsRunning] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const handleRunScraping = async () => {
     setIsRunning(true)
     try {
-      const response = await fetch('/api/v1/admin/scraping/run', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
-      })
-      if (response.ok) {
-        const result = await response.json()
-        alert(`Scraping completed: ${result.products_added} products added`)
-      } else {
-        alert('Scraping failed')
-      }
-    } catch (error) {
-      alert('Error running scraping job')
+      const response = await api.adminRunScraping()
+      setJobs((prev) => [...prev, {
+        id: Date.now(),
+        source_name: 'all',
+        status: 'completed',
+        products_found: response.products_found || 0,
+        products_added: response.products_added || 0,
+        created_at: new Date().toISOString(),
+      }])
+      alert(`Scraping completed: ${response.products_added} products added`)
+    } catch (error: any) {
+      alert('Scraping failed: ' + error.message)
     } finally {
       setIsRunning(false)
     }
   }
+
+  useEffect(() => {
+    api.adminListScrapingJobs().then((res: any) => {
+      setJobs(res || [])
+    }).finally(() => setLoading(false))
+  }, [])
 
   const statusColors: Record<string, string> = {
     completed: 'bg-green-100 text-green-700',
@@ -75,7 +75,7 @@ export default function AdminScraping() {
             <button
               onClick={handleRunScraping}
               disabled={isRunning}
-              className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2"
             >
               {isRunning ? (
                 <div className="flex items-center gap-2">
@@ -106,7 +106,13 @@ export default function AdminScraping() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {mockJobs.map((job) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : jobs.map((job) => (
                   <tr key={job.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-600">#{job.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{job.source_name}</td>
@@ -129,6 +135,13 @@ export default function AdminScraping() {
                     </td>
                   </tr>
                 ))}
+                {jobs.length === 0 && !loading && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center">
+                      <p className="text-gray-500">No scraping jobs found.</p>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

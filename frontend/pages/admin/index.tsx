@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
+import { api } from '@/lib/api'
 import { 
   LayoutDashboard, 
   Package, 
@@ -24,7 +25,12 @@ const adminNav = [
 ]
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState('dashboard')
+  const [stats, setStats] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.getDashboardStats().then(setStats).finally(() => setLoading(false))
+  }, [])
 
   return (
     <Layout title="Admin Dashboard - Dropshipping Tunisia">
@@ -69,17 +75,11 @@ export default function Admin() {
               <nav className="space-y-1">
                 {adminNav.map((item) => {
                   const Icon = item.icon
-                  const isActive = activeTab === item.name.toLowerCase().split(' ')[0]
                   return (
                     <Link
                       key={item.name}
                       href={item.href}
-                      onClick={() => setActiveTab(item.name.toLowerCase().split(' ')[0])}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-primary-50 text-primary-600'
-                          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                      }`}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     >
                       <Icon className="w-5 h-5" />
                       {item.name}
@@ -104,130 +104,93 @@ export default function Admin() {
                 <p className="text-gray-600">Welcome back, Admin. Here's what's happening with your store.</p>
               </div>
 
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Total Products</p>
-                      <p className="text-2xl font-bold text-gray-900">1,234</p>
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <>
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Total Products</p>
+                          <p className="text-2xl font-bold text-gray-900">{stats?.total_products ?? 0}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+                          <Package className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">{stats?.active_products ?? 0} active</p>
                     </div>
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                      <Package className="w-5 h-5" />
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Total Orders</p>
+                          <p className="text-2xl font-bold text-gray-900">{stats?.total_orders ?? 0}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+                          <ShoppingCart className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">{stats?.pending_orders ?? 0} pending</p>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Total Revenue</p>
+                          <p className="text-2xl font-bold text-gray-900">{stats?.total_revenue ?? 0} TND</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
+                          <BarChart3 className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">{stats?.recent_revenue_7d ?? 0} TND (7d)</p>
+                    </div>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">Pending Orders</p>
+                          <p className="text-2xl font-bold text-gray-900">{stats?.pending_orders ?? 0}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                          <Shield className="w-5 h-5" />
+                        </div>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">Requires attention</p>
                     </div>
                   </div>
-                  <p className="mt-2 text-sm text-gray-500">+12% from last month</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Total Orders</p>
-                      <p className="text-2xl font-bold text-gray-900">567</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
-                      <ShoppingCart className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-500">+8% from last month</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                      <p className="text-2xl font-bold text-gray-900">45,230 TND</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600">
-                      <BarChart3 className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-500">+15% from last month</p>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">Pending Orders</p>
-                      <p className="text-2xl font-bold text-gray-900">23</p>
-                    </div>
-                    <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
-                      <Shield className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-500">Requires attention</p>
-                </div>
-              </div>
 
-              {/* Quick Actions */}
-              <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <Link href="/admin/products" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
-                    <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-primary-600 mb-4">
-                      <Plus className="w-6 h-6" />
+                  {/* Quick Actions */}
+                  <div className="mb-8">
+                    <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <Link href="/admin/products" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
+                        <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-primary-600 mb-4">
+                          <Plus className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Add Product</h3>
+                        <p className="text-sm text-gray-500">Add a new product to the catalog</p>
+                      </Link>
+                      <Link href="/admin/orders" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
+                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4">
+                          <ShoppingCart className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Manage Orders</h3>
+                        <p className="text-sm text-gray-500">View and update order statuses</p>
+                      </Link>
+                      <Link href="/admin/scraping" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
+                        <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4">
+                          <Shield className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-semibold text-gray-900 mb-2">Run Scraping</h3>
+                        <p className="text-sm text-gray-500">Trigger product data scraping</p>
+                      </Link>
                     </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Add Product</h3>
-                    <p className="text-sm text-gray-500">Add a new product to the catalog</p>
-                  </Link>
-                  <Link href="/admin/orders" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4">
-                      <ShoppingCart className="w-6 h-6" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Manage Orders</h3>
-                    <p className="text-sm text-gray-500">View and update order statuses</p>
-                  </Link>
-                  <Link href="/admin/scraping" className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-colors">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-600 mb-4">
-                      <Shield className="w-6 h-6" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Run Scraping</h3>
-                    <p className="text-sm text-gray-500">Trigger product data scraping</p>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-lg font-bold text-gray-900">Recent Activity</h2>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="px-6 py-3 text-sm font-medium text-gray-500">Time</th>
-                        <th className="px-6 py-3 text-sm font-medium text-gray-500">Action</th>
-                        <th className="px-6 py-3 text-sm font-medium text-gray-500">User</th>
-                        <th className="px-6 py-3 text-sm font-medium text-gray-500">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-600">2 min ago</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">New order placed</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">Customer #1234</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Pending</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-600">15 min ago</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">Product updated</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">Admin</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Active</span>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="px-6 py-4 text-sm text-gray-600">1 hour ago</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">New user registered</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">Customer #5678</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">Verified</span>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </main>
         </div>
