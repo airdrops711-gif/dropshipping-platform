@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/router'
 import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import Head from 'next/head'
