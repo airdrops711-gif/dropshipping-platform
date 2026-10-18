@@ -8,12 +8,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ libpq-dev curl \
+    libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 libgbm1 libgtk-3-0 libxcomposite1 libxdamage1 libxfixes6 libxrandr2 libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
+RUN playwright install chromium --with-deps
 
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
