@@ -1,9 +1,9 @@
 import asyncio
 import logging
+import random
+import re
 from typing import List, Dict, Any
 from datetime import datetime
-import random
-
 from playwright.async_api import async_playwright
 from sqlalchemy.orm import Session
 from database import get_db, Product, Supplier, Category, ProductStatus, ScrapingJob
@@ -44,19 +44,19 @@ class ProductCrawler:
                 browser = await p.chromium.launch(headless=True)
                 context = await browser.new_context(
                     viewport={"width": 1920, "height": 1080},
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                 )
                 page = await context.new_page()
                 
-                await page.goto(source["url"], wait_until="networkidle")
-                await page.wait_for_timeout(2000)
+                await page.goto(source["url"], wait_until="domcontentloaded", timeout=30000)
+                await page.wait_for_timeout(3000)
                 
                 # Extract products
-                product_elements = await page.query_selector_all(".product-item, .item, .product")
+                product_elements = await page.query_selector_all(".product-item, .item, .product, article")
                 
                 for element in product_elements[:20]:  # Limit per page
                     try:
-                        name_el = await element.query_selector(".name, .title, h2, h3")
+                        name_el = await element.query_selector(".name, .title, h2, h3, [class*='name'], [class*='title']")
                         price_el = await element.query_selector(".price, .cost, [class*='price']")
                         image_el = await element.query_selector("img")
                         
@@ -86,7 +86,6 @@ class ProductCrawler:
         return products
     
     def _parse_price(self, text: str) -> float:
-        import re
         cleaned = re.sub(r'[^\d.,]', '', text)
         cleaned = cleaned.replace(',', '.')
         try:
@@ -128,6 +127,7 @@ class ProductCrawler:
                         
                         product = Product(
                             name=product_data["name"],
+                            name_en=product_data["name"],
                             price=product_data["price"],
                             currency=product_data.get("currency", "TND"),
                             main_image=product_data.get("image", ""),

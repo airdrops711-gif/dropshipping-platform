@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Request
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import os
@@ -6,11 +7,15 @@ import os
 from database import get_db, User
 from schemas import UserCreate, UserResponse, Token
 from config import settings
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 @router.post("/register", response_model=UserResponse)
-async def register(user: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+async def register(request: Request, user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -31,7 +36,8 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 @router.post("/login", response_model=Token)
-async def login(user_data: UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+async def login(request: Request, user_data: UserCreate, db: Session = Depends(get_db)):
     from auth_utils import verify_password, create_access_token
     
     db_user = db.query(User).filter(User.email == user_data.email).first()

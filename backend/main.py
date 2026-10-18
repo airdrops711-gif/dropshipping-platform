@@ -1,9 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 from contextlib import asynccontextmanager
 import os
+import uuid
 from datetime import datetime
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -29,21 +31,46 @@ app = FastAPI(
     title="Dropshipping Tunisia API",
     description="API for Tunisian dropshipping platform",
     version="2.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
 )
 
 # Rate limiting
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS
+# Trusted host middleware - security hardening
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=["*"] if settings.environment == "development" else [
+        "backend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com",
+        "dropshipping.tn",
+        "*.dropshipping.tn",
+        "localhost",
+    ],
+)
+
+# CORS - restricted in production
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"] if settings.environment == "development" else [
+        "https://frontend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com",
+        "https://dropshipping.tn",
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Request ID middleware for tracing
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
 
 # Security headers middleware
 @app.middleware("http")
@@ -54,9 +81,10 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:;"
     return response
 
-# Include routers
+# Include routers - versioned API v1
 app.include_router(products.router, prefix="/api/v1/products", tags=["products"])
 app.include_router(orders.router, prefix="/api/v1/orders", tags=["orders"])
 app.include_router(suppliers.router, prefix="/api/v1/suppliers", tags=["suppliers"])
