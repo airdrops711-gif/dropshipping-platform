@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react'
 
 export default function ProductsPage() {
   const searchParams = useSearchParams()
-  const category = searchParams.get('category')
-  const search = searchParams.get('search')
+  const category = searchParams?.get('category')
+  const search = searchParams?.get('search')
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,7 +20,7 @@ export default function ProductsPage() {
       limit: 50,
     })
       .then((res: any) => {
-        setProducts(Array.isArray(res) ? res : [])
+        setProducts(Array.isArray(res) ? res : (res?.items || res?.data || []))
         setError(null)
       })
       .catch((err: any) => {
