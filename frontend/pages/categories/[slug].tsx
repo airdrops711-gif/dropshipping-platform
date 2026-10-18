@@ -1,11 +1,16 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
 import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useState, useEffect } from 'react'
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
-  const slug = params.slug
+export default function CategoryPage() {
+  const router = useRouter()
+  const { slug } = router.query
+  const slugStr = typeof slug === 'string' ? slug : slug ? Array.isArray(slug) ? slug[0] : String(slug) : ''
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -18,7 +23,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         // Fetch categories to resolve slug to ID
         const categories = await api.getCategories()
         const match = (categories || []).find(
-          (c: any) => c.slug === slug || c.name_en?.toLowerCase() === slug.toLowerCase()
+          (c: any) => c.slug === slugStr || c.name_en?.toLowerCase() === slugStr.toLowerCase()
         )
         categoryId = match?.id
 
@@ -38,18 +43,18 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
     }
 
     loadCategory()
-  }, [slug])
+  }, [slugStr])
 
   return (
-    <Layout title={`Category - ${slug} - Dropshipping Tunisia`} description={`Browse ${slug} products.`}>
+    <Layout title={`Category - ${slugStr} - Dropshipping Tunisia`} description={`Browse ${slugStr} products.`}>
       <Head>
-        <title>{slug} - Dropshipping Tunisia</title>
-        <meta name="description" content={`Browse ${slug} products at the best prices.`} />
+        <title>{slugStr} - Dropshipping Tunisia</title>
+        <meta name="description" content={`Browse ${slugStr} products at the best prices.`} />
       </Head>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">{slug}</h1>
-          <p className="text-gray-600">Browse {slug} products</p>
+          <h1 className="text-3xl font-bold text-gray-900">{slugStr}</h1>
+          <p className="text-gray-600">Browse {slugStr} products</p>
         </div>
 
         {error && (
