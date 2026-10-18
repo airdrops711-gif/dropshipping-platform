@@ -14,8 +14,9 @@ export default function ProductsPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const categoryId = category ? Number(category) : undefined
     api.getProducts({
-      category_id: category ? undefined : undefined,
+      category_id: categoryId,
       search: search || undefined,
       limit: 50,
     })

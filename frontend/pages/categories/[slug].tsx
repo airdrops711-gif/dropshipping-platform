@@ -1,31 +1,43 @@
-import { useSearchParams } from 'next/navigation'
 import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useState, useEffect } from 'react'
 
-export default function CategoryPage() {
-  const searchParams = useSearchParams()
-  const slug = searchParams.get('slug') || ''
+export default function CategoryPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    api.getProducts({
-      search: slug || undefined,
-      limit: 50,
-    })
-      .then((res: any) => {
+    let categoryId: number | undefined
+
+    const loadCategory = async () => {
+      try {
+        // Fetch categories to resolve slug to ID
+        const categories = await api.getCategories()
+        const match = (categories || []).find(
+          (c: any) => c.slug === slug || c.name_en?.toLowerCase() === slug.toLowerCase()
+        )
+        categoryId = match?.id
+
+        // Fetch products for this category
+        const res = await api.getProducts({
+          category_id: categoryId,
+          limit: 50,
+        })
         setProducts(res || [])
         setError(null)
-      })
-      .catch((err: any) => {
+      } catch (err: any) {
         setError(err.message || 'Failed to load category products')
         setProducts([])
-      })
-      .finally(() => setLoading(false))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadCategory()
   }, [slug])
 
   return (
