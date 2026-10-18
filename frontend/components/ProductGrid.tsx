@@ -10,7 +10,7 @@ interface Product {
 }
 
 export default function ProductGrid({ products }: { products: Product[] }) {
-  const safeProducts = (products || []).filter((p): p is Product => p != null && p.id != null && p.name)
+  const safeProducts = (products || []).filter((p): p is Product => p != null && p.id != null && Boolean(p.name))
 
   if (safeProducts.length === 0) {
     return (
