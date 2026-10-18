@@ -25,26 +25,34 @@ export default function ProductDetail() {
   const params = useParams()
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!params.id) return
     const id = Number(params.id)
-    api.getProduct(id).then((res: any) => {
-      setProduct({
-        id: res.id,
-        name: res.name_en || res.name,
-        nameAr: res.name_ar,
-        price: res.price,
-        currency: res.currency,
-        image: res.main_image || (res.images?.[0] || ''),
-        rating: res.rating,
-        description: res.description_en || res.description,
-        stock: res.stock_quantity,
+    api.getProduct(id)
+      .then((res: any) => {
+        setProduct({
+          id: res.id,
+          name: res.name_en || res.name,
+          nameAr: res.name_ar,
+          price: res.price,
+          currency: res.currency,
+          image: res.main_image || (res.images?.[0] || ''),
+          rating: res.rating,
+          description: res.description_en || res.description,
+          stock: res.stock_quantity,
+        })
+        setError(null)
       })
-    }).finally(() => setLoading(false))
+      .catch((err: any) => {
+        setError(err.message || 'Failed to load product')
+        setProduct(null)
+      })
+      .finally(() => setLoading(false))
   }, [params?.id])
 
-  if (!product) {
+  if (loading && !product && !error) {
     return (
       <Layout title="Loading...">
         <div className="max-w-7xl mx-auto px-4 py-12 flex justify-center">
@@ -52,6 +60,26 @@ export default function ProductDetail() {
         </div>
       </Layout>
     )
+  }
+
+  if (error) {
+    return (
+      <Layout title="Product Not Found">
+        <div className="max-w-7xl mx-auto px-4 py-12 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 inline-block">
+            <h2 className="text-xl font-bold text-red-800 mb-2">Product Not Found</h2>
+            <p className="text-red-600 text-sm">{error}</p>
+            <Link href="/" className="mt-4 inline-block text-blue-600 hover:underline font-medium">
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </Layout>
+    )
+  }
+
+  if (!product) {
+    return null
   }
 
   return (

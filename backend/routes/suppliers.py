@@ -4,6 +4,7 @@ from datetime import datetime
 
 from database import get_db, Supplier
 from schemas import SupplierCreate, SupplierUpdate, SupplierResponse
+from auth_utils import get_current_user, get_current_admin
 
 router = APIRouter()
 
@@ -27,7 +28,11 @@ async def get_supplier(supplier_id: int, db: Session = Depends(get_db)):
     return supplier
 
 @router.post("/", response_model=SupplierResponse)
-async def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
+async def create_supplier(
+    supplier: SupplierCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     db_supplier = Supplier(**supplier.dict())
     db.add(db_supplier)
     db.commit()
@@ -35,7 +40,12 @@ async def create_supplier(supplier: SupplierCreate, db: Session = Depends(get_db
     return db_supplier
 
 @router.put("/{supplier_id}", response_model=SupplierResponse)
-async def update_supplier(supplier_id: int, supplier: SupplierUpdate, db: Session = Depends(get_db)):
+async def update_supplier(
+    supplier_id: int,
+    supplier: SupplierUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     db_supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not db_supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
@@ -49,7 +59,11 @@ async def update_supplier(supplier_id: int, supplier: SupplierUpdate, db: Sessio
     return db_supplier
 
 @router.delete("/{supplier_id}")
-async def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
+async def delete_supplier(
+    supplier_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     supplier = db.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")

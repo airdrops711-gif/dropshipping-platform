@@ -11,15 +11,23 @@ export default function ProductsPage() {
   const search = searchParams.get('search')
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     api.getProducts({
       category_id: category ? undefined : undefined,
       search: search || undefined,
       limit: 50,
-    }).then((res: any) => {
-      setProducts(res || [])
-    }).finally(() => setLoading(false))
+    })
+      .then((res: any) => {
+        setProducts(res || [])
+        setError(null)
+      })
+      .catch((err: any) => {
+        setError(err.message || 'Failed to load products')
+        setProducts([])
+      })
+      .finally(() => setLoading(false))
   }, [category, search])
 
   return (
@@ -29,6 +37,11 @@ export default function ProductsPage() {
         <meta name="description" content="Browse our catalog of quality products at the best prices." />
       </Head>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
+        )}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">

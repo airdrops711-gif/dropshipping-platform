@@ -7,6 +7,7 @@ import uuid
 from database import get_db, Order, OrderItem, Product, OrderStatus, Supplier
 from schemas import OrderCreate, OrderResponse, OrderUpdate
 from config import settings
+from auth_utils import get_current_user
 
 router = APIRouter()
 
@@ -16,7 +17,8 @@ async def get_orders(
     limit: int = Query(50, ge=1, le=200),
     status: str = Query(None),
     supplier_id: int = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     query = db.query(Order)
     if status:
@@ -26,14 +28,22 @@ async def get_orders(
     return query.order_by(Order.created_at.desc()).offset(skip).limit(limit).all()
 
 @router.get("/{order_id}", response_model=OrderResponse)
-async def get_order(order_id: int, db: Session = Depends(get_db)):
+async def get_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
 @router.post("/", response_model=OrderResponse)
-async def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
+async def create_order(
+    order_data: OrderCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
     # Generate order number
     order_number = f"TN-{datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
     
@@ -82,7 +92,12 @@ async def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
     return db_order
 
 @router.put("/{order_id}", response_model=OrderResponse)
-async def update_order(order_id: int, order_update: OrderUpdate, db: Session = Depends(get_db)):
+async def update_order(
+    order_id: int,
+    order_update: OrderUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -96,7 +111,10 @@ async def update_order(order_id: int, order_update: OrderUpdate, db: Session = D
     return order
 
 @router.get("/stats/summary")
-async def get_order_stats(db: Session = Depends(get_db)):
+async def get_order_stats(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
     total_orders = db.query(Order).count()
     total_revenue = db.query(func.sum(Order.total_amount)).filter(
         Order.status.in_([OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED])

@@ -7,6 +7,7 @@ from datetime import datetime
 from database import get_db, Product, Category, Supplier, ProductStatus
 from schemas import ProductCreate, ProductUpdate, ProductResponse
 from elasticsearch_client import es_client
+from auth_utils import get_current_user, get_current_admin
 
 router = APIRouter()
 
@@ -61,7 +62,11 @@ async def get_product(product_id: int, db: Session = Depends(get_db)):
     return product
 
 @router.post("/", response_model=ProductResponse)
-async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
+async def create_product(
+    product: ProductCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     db_product = Product(**product.dict())
     db.add(db_product)
     db.commit()
@@ -73,7 +78,12 @@ async def create_product(product: ProductCreate, db: Session = Depends(get_db)):
     return db_product
 
 @router.put("/{product_id}", response_model=ProductResponse)
-async def update_product(product_id: int, product: ProductUpdate, db: Session = Depends(get_db)):
+async def update_product(
+    product_id: int,
+    product: ProductUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     db_product = db.query(Product).filter(Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -89,7 +99,11 @@ async def update_product(product_id: int, product: ProductUpdate, db: Session = 
     return db_product
 
 @router.delete("/{product_id}")
-async def delete_product(product_id: int, db: Session = Depends(get_db)):
+async def delete_product(
+    product_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_admin)
+):
     db_product = db.query(Product).filter(Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")

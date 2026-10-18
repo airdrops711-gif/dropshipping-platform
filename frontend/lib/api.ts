@@ -1,5 +1,8 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://backend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com/api/v1'
 
+const REQUEST_TIMEOUT = 10000
+const MAX_RETRIES = 2
+
 class ApiClient {
   private base: string
   private token: string | null = null
@@ -19,10 +22,20 @@ class ApiClient {
     }
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async requestWithTimeout(url: string, options: RequestInit): Promise<Response> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT)
+    try {
+      const res = await fetch(url, { ...options, signal: controller.signal })
+      clearTimeout(timeoutId)
+      return res
+    } catch (err) {
+      clearTimeout(timeoutId)
+      throw err
+    }
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
@@ -31,17 +44,33 @@ class ApiClient {
       headers['Authorization'] = `Bearer ${this.token}`
     }
 
-    const res = await fetch(`${this.base}${endpoint}`, {
-      ...options,
-      headers,
-    })
+    let lastError: Error | null = null
 
-    if (!res.ok) {
-      const error = await res.json().catch(() => ({ detail: 'Unknown error' }))
-      throw new Error(error.detail || `Request failed: ${res.status}`)
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const res = await this.requestWithTimeout(`${this.base}${endpoint}`, {
+          ...options,
+          headers,
+        })
+
+        if (!res.ok) {
+          const error = await res.json().catch(() => ({ detail: 'Unknown error' }))
+          throw new Error(error.detail || `Request failed: ${res.status}`)
+        }
+
+        return res.json()
+      } catch (err: any) {
+        lastError = err
+        if (err.message.includes('401') || err.message.includes('403') || err.message.includes('404')) {
+          throw err
+        }
+        if (attempt < MAX_RETRIES) {
+          await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)))
+        }
+      }
     }
 
-    return res.json()
+    throw lastError || new Error('Request failed after retries')
   }
 
   // Products

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 import { Play, RefreshCw, Clock, Database, AlertTriangle } from 'lucide-react'
 
 interface ScrapingJob {
@@ -15,9 +17,21 @@ interface ScrapingJob {
 }
 
 export default function AdminScraping() {
+  const { isLoading, requireAdmin } = useAuth()
+  const router = useRouter()
   const [jobs, setJobs] = useState<ScrapingJob[]>([])
   const [isRunning, setIsRunning] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isLoading && !requireAdmin()) {
+      router.push('/account')
+    }
+  }, [isLoading, requireAdmin, router])
+
+  if (isLoading || !requireAdmin()) {
+    return null
+  }
 
   const handleRunScraping = async () => {
     setIsRunning(true)

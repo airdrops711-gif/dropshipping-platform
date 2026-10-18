@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 import { 
   LayoutDashboard, 
   Package, 
@@ -25,8 +27,21 @@ const adminNav = [
 ]
 
 export default function Admin() {
+  const { isLoading, isAuthenticated, isAdmin, requireAdmin } = useAuth()
+  const router = useRouter()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+
+  // Redirect to login if not authenticated or not admin
+  useEffect(() => {
+    if (!isLoading && !requireAdmin()) {
+      router.push('/account')
+    }
+  }, [isLoading, requireAdmin, router])
+
+  if (isLoading || !requireAdmin()) {
+    return null
+  }
 
   useEffect(() => {
     api.getDashboardStats().then(setStats).finally(() => setLoading(false))

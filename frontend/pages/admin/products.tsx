@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 import { Plus, Search, Edit, Trash2, CheckCircle, Clock } from 'lucide-react'
 
 interface Product {
@@ -16,10 +18,22 @@ interface Product {
 }
 
 export default function AdminProducts() {
+  const { isLoading, requireAdmin } = useAuth()
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isLoading && !requireAdmin()) {
+      router.push('/account')
+    }
+  }, [isLoading, requireAdmin, router])
+
+  if (isLoading || !requireAdmin()) {
+    return null
+  }
 
   useEffect(() => {
     api.adminListProducts().then((res: any) => {

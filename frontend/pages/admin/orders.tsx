@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 import { ShoppingCart, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
 interface Order {
@@ -16,8 +18,20 @@ interface Order {
 }
 
 export default function AdminOrders() {
+  const { isLoading, requireAdmin } = useAuth()
+  const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!isLoading && !requireAdmin()) {
+      router.push('/account')
+    }
+  }, [isLoading, requireAdmin, router])
+
+  if (isLoading || !requireAdmin()) {
+    return null
+  }
 
   useEffect(() => {
     api.adminListOrders().then((res: any) => {
