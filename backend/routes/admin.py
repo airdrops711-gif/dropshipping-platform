@@ -241,23 +241,22 @@ async def run_scraping_job(
     job = ScrapingJob(
         source_name=source_name or "all",
         status="running",
-        started_at=datetime.utcnow()
+        last_run=datetime.utcnow()
     )
     db.add(job)
     db.commit()
     db.refresh(job)
-    
+
     try:
         crawler = ProductCrawler()
         products_data = await crawler.crawl_all_sources()
         saved_count = crawler.save_products_to_db(products_data, db)
-        
+
         job.status = "completed"
         job.products_found = sum(len(p) for p in products_data.values())
         job.products_added = saved_count
-        job.completed_at = datetime.utcnow()
         db.commit()
-        
+
         return {
             "job_id": job.id,
             "status": "completed",
@@ -267,7 +266,6 @@ async def run_scraping_job(
     except Exception as e:
         job.status = "failed"
         job.error_message = str(e)
-        job.completed_at = datetime.utcnow()
         db.commit()
         raise HTTPException(status_code=500, detail=f"Scraping failed: {str(e)}")
 
