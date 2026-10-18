@@ -42,14 +42,10 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Trusted host middleware - security hardening
+# Allow all hosts since OpenShift router handles TLS termination and host validation
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"] if settings.environment == "development" else [
-        "backend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com",
-        "dropshipping.tn",
-        "*.dropshipping.tn",
-        "localhost",
-    ],
+    allowed_hosts=["*"],
 )
 
 # CORS - restricted in production
