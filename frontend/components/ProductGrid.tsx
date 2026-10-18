@@ -10,9 +10,19 @@ interface Product {
 }
 
 export default function ProductGrid({ products }: { products: Product[] }) {
+  const safeProducts = (products || []).filter((p): p is Product => p != null && p.id != null && p.name)
+
+  if (safeProducts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">No products found.</p>
+      </div>
+    )
+  }
+
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
-      {products.map((product) => (
+      {safeProducts.map((product) => (
         <a
           key={product.id}
           href={`/products/${product.id}`}
@@ -26,26 +36,26 @@ export default function ProductGrid({ products }: { products: Product[] }) {
             )}
             <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-100">
               <img
-                src={product.image}
-                alt={product.name}
+                src={product.image || '/favicon.ico'}
+                alt={product.name || 'Product'}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 loading="lazy"
               />
             </div>
             <div className="p-4">
               <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
-                {product.name}
+                {product.name || 'Untitled Product'}
               </h3>
               {product.nameAr && (
                 <p className="text-xs text-gray-500 mb-3">{product.nameAr}</p>
               )}
               <div className="flex items-center justify-between mb-3">
                 <span className="font-bold text-gray-900 text-sm sm:text-base">
-                  {product.price} {product.currency}
+                  {product.price ?? 0} {product.currency || 'TND'}
                 </span>
                 {product.discount && (
                   <span className="text-sm text-gray-400 line-through">
-                    {Math.round(product.price / (1 - product.discount / 100))} {product.currency}
+                    {Math.round(product.price / (1 - product.discount / 100))} {product.currency || 'TND'}
                   </span>
                 )}
               </div>

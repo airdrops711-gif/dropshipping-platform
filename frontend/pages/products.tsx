@@ -20,7 +20,7 @@ export default function ProductsPage() {
       limit: 50,
     })
       .then((res: any) => {
-        setProducts(res || [])
+        setProducts(Array.isArray(res) ? res : [])
         setError(null)
       })
       .catch((err: any) => {

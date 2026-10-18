@@ -80,7 +80,20 @@ export default function ProductDetail() {
   }
 
   if (!product) {
-    return null
+    return (
+      <>
+        <Head><title>Product Not Found</title></Head>
+        <div className="max-w-7xl mx-auto px-4 py-12 text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 inline-block">
+            <h2 className="text-xl font-bold text-red-800 mb-2">Product Not Found</h2>
+            <p className="text-red-600 text-sm">{error || 'The product you are looking for does not exist.'}</p>
+            <Link href="/" className="mt-4 inline-block text-blue-600 hover:underline font-medium">
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (

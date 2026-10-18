@@ -20,7 +20,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getFeatured(8).then(setFeatured).finally(() => setLoading(false))
+    api.getFeatured(8)
+      .then((res: any) => setFeatured(Array.isArray(res) ? res : []))
+      .catch(() => setFeatured([]))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
