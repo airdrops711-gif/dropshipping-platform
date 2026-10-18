@@ -1,0 +1,114 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: image-registry.openshift-image-registry.svc:5000
+  NAMESPACE: saif711-dev
+  CLUSTER: api.rm3.7wse.p1.openshiftapps.com:6443
+
+jobs:
+  lint-and-test:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Run frontend lint
+        working-directory: frontend
+        run: npm run lint --if-present
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run backend lint
+        working-directory: backend
+        run: |
+          python -m py_compile main.py routes/*.py database.py config.py auth_utils.py
+
+  build-frontend:
+    name: Build Frontend Image
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to OpenShift Registry
+        run: |
+          echo "${{ secrets.OC_TOKEN }}" | oc login ${{ env.CLUSTER }} --token=${{ secrets.OC_TOKEN }} --insecure-skip-tls-verify=true
+          oc project ${{ env.NAMESPACE }}
+
+      - name: Build and push frontend image
+        run: |
+          oc start-build frontend-build --from-dir=frontend/ -n ${{ env.NAMESPACE }} --follow
+
+  build-backend:
+    name: Build Backend Image
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to OpenShift Registry
+        run: |
+          echo "${{ secrets.OC_TOKEN }}" | oc login ${{ env.CLUSTER }} --token=${{ secrets.OC_TOKEN }} --insecure-skip-tls-verify=true
+          oc project ${{ env.NAMESPACE }}
+
+      - name: Build and push backend image
+        run: |
+          oc start-build backend-build --from-dir=backend/ -n ${{ env.NAMESPACE }} --follow
+
+  deploy:
+    name: Deploy to OpenShift
+    needs: [build-frontend, build-backend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to OpenShift
+        run: |
+          echo "${{ secrets.OC_TOKEN }}" | oc login ${{ env.CLUSTER }} --token=${{ secrets.OC_TOKEN }} --insecure-skip-tls-verify=true
+          oc project ${{ env.NAMESPACE }}
+
+      - name: Rollout frontend deployment
+        run: |
+          oc rollout restart deployment/frontend -n ${{ env.NAMESPACE }}
+          oc rollout status deployment/frontend -n ${{ env.NAMESPACE }} --watch=false --timeout=300s
+
+      - name: Rollout backend deployment
+        run: |
+          oc rollout restart deployment/backend -n ${{ env.NAMESPACE }}
+          oc rollout status deployment/backend -n ${{ env.NAMESPACE }} --watch=false --timeout=300s
+
+      - name: Verify deployment
+        run: |
+          echo "Deployment complete. Frontend and backend rolled out successfully."
