@@ -10,7 +10,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 from database import engine, Base
-from routes import products, orders, suppliers, search, auth, admin
+from routes import products, orders, suppliers, search, auth, admin, monitoring
 from scraping.crawler import start_scraping_job
 from config import settings
 
@@ -63,6 +63,7 @@ app.include_router(suppliers.router, prefix="/api/v1/suppliers", tags=["supplier
 app.include_router(search.router, prefix="/api/v1/search", tags=["search"])
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(monitoring.router, prefix="/api/v1", tags=["monitoring"])
 
 @app.get("/health")
 async def health_check():
