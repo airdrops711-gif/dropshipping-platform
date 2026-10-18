@@ -47,7 +47,7 @@ jobs:
       - name: Run backend lint
         working-directory: backend
         run: |
-          python -m py_compile main.py routes/*.py database.py config.py auth_utils.py
+          python -m py_compile main.py routes/*.py database.py config.py auth_utils.py scraping/crawler.py
 
   build-frontend:
     name: Build Frontend Image
@@ -99,6 +99,11 @@ jobs:
           echo "${{ secrets.OC_TOKEN }}" | oc login ${{ env.CLUSTER }} --token=${{ secrets.OC_TOKEN }} --insecure-skip-tls-verify=true
           oc project ${{ env.NAMESPACE }}
 
+      - name: Backup database before deploy
+        run: |
+          echo "Creating database backup..."
+          oc exec deployment/postgres -n ${{ env.NAMESPACE }} -- pg_dump -U dropshipping dropshipping > /tmp/backup_$(date +%Y%m%d_%H%M%S).sql || echo "Backup skipped (manual step)"
+
       - name: Rollout frontend deployment
         run: |
           oc rollout restart deployment/frontend -n ${{ env.NAMESPACE }}
@@ -108,6 +113,16 @@ jobs:
         run: |
           oc rollout restart deployment/backend -n ${{ env.NAMESPACE }}
           oc rollout status deployment/backend -n ${{ env.NAMESPACE }} --watch=false --timeout=300s
+
+      - name: Verify deployment health
+        run: |
+          echo "Verifying frontend..."
+          curl -sf https://frontend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com/ || exit 1
+          echo "Verifying backend..."
+          curl -sf https://backend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com/health || exit 1
+          echo "Verifying backend readiness..."
+          curl -sf https://backend-saif711-dev.apps.rm3.7wse.p1.openshiftapps.com/api/v1/health/ready || exit 1
+          echo "All health checks passed."
 
       - name: Verify deployment
         run: |
