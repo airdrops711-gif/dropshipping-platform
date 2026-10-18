@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.proxy import ProxyHeadersMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 from contextlib import asynccontextmanager
@@ -40,6 +41,14 @@ app = FastAPI(
 # Rate limiting
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Proxy headers middleware - OpenShift terminates TLS and forwards over HTTP.
+# Trust X-Forwarded-Proto so redirect Location headers use HTTPS (not HTTP),
+# which browsers would otherwise block as mixed content.
+app.add_middleware(
+    ProxyHeadersMiddleware,
+    trusted_hosts=["*"],
+)
 
 # Trusted host middleware - security hardening
 # Allow all hosts since OpenShift router handles TLS termination and host validation
