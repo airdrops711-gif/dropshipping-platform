@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import Layout from '../components/Layout'
 import Head from 'next/head'
 
 export default function About() {
   return (
-    <Layout>
+    <>
       <Head>
         <title>About Us - Dropshipping Tunisia</title>
         <meta name="description" content="Learn about Dropshipping Tunisia's mission and why we're the best e-commerce platform in Tunisia." />
@@ -31,6 +30,6 @@ export default function About() {
           </ul>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

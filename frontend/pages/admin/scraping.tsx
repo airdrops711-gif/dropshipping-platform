@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
@@ -67,7 +66,7 @@ export default function AdminScraping() {
   }
 
   return (
-    <Layout title="Scraping Controls - Admin">
+    <>
       <Head>
         <title>Scraping Controls - Admin Panel</title>
         <meta name="description" content="Manage product scraping jobs." />
@@ -181,6 +180,6 @@ export default function AdminScraping() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

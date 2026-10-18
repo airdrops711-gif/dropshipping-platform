@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
@@ -48,7 +47,7 @@ export default function Admin() {
   }, [])
 
   return (
-    <Layout title="Admin Dashboard - Dropshipping Tunisia">
+    <>
       <Head>
         <title>Admin Dashboard - Dropshipping Tunisia</title>
         <meta name="description" content="Admin panel for managing products, orders, and analytics." />
@@ -210,6 +209,6 @@ export default function Admin() {
           </main>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

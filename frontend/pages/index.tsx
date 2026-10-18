@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import CategoryGrid from '@/components/CategoryGrid'
 import Head from 'next/head'
@@ -25,10 +24,7 @@ export default function Home() {
   }, [])
 
   return (
-    <Layout
-      title="Dropshipping Tunisia - Best Products at Best Prices"
-      description="Discover the best products in Tunisia at the most competitive prices. Fast delivery across Tunisia."
-    >
+    <>
       <Head>
         <title>Dropshipping Tunisia - Best Products at Best Prices</title>
         <meta name="description" content="Discover the best products in Tunisia at the most competitive prices. Fast delivery across Tunisia." />
@@ -104,6 +100,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-    </Layout>
+    </>
   )
 }

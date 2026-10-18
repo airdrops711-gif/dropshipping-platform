@@ -2,7 +2,6 @@
 
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { formatPrice } from '@/lib/utils'
 import { api } from '@/lib/api'
@@ -54,17 +53,19 @@ export default function ProductDetail() {
 
   if (loading && !product && !error) {
     return (
-      <Layout title="Loading...">
+      <>
+        <Head><title>Loading...</title></Head>
         <div className="max-w-7xl mx-auto px-4 py-12 flex justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </>
     )
   }
 
   if (error) {
     return (
-      <Layout title="Product Not Found">
+      <>
+        <Head><title>Product Not Found</title></Head>
         <div className="max-w-7xl mx-auto px-4 py-12 text-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-8 inline-block">
             <h2 className="text-xl font-bold text-red-800 mb-2">Product Not Found</h2>
@@ -74,7 +75,7 @@ export default function ProductDetail() {
             </Link>
           </div>
         </div>
-      </Layout>
+      </>
     )
   }
 
@@ -83,7 +84,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <Layout title={product.name} description={product.description}>
+    <>
       <Head>
         <title>{product.name} - Dropshipping Tunisia</title>
         <meta name="description" content={product.description || `Buy ${product.name} at the best price in Tunisia.`} />
@@ -152,6 +153,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
@@ -55,7 +54,7 @@ export default function AdminProducts() {
   }
 
   return (
-    <Layout title="Product Management - Admin">
+    <>
       <Head>
         <title>Product Management - Admin Panel</title>
         <meta name="description" content="Manage products in the admin panel." />
@@ -175,6 +174,6 @@ export default function AdminProducts() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

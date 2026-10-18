@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Layout from '@/components/Layout'
 import CategoryGrid from '@/components/CategoryGrid'
 import Head from 'next/head'
 
@@ -15,7 +14,7 @@ const categories = [
 
 export default function Categories() {
   return (
-    <Layout title="Categories - Dropshipping Tunisia" description="Browse products by category.">
+    <>
       <Head>
         <title>Categories - Dropshipping Tunisia</title>
         <meta name="description" content="Browse products by category." />
@@ -27,6 +26,6 @@ export default function Categories() {
         </div>
         <CategoryGrid categories={categories} />
       </div>
-    </Layout>
+    </>
   )
 }

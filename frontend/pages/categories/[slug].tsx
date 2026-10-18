@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/router'
-import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import Head from 'next/head'
 import { api } from '@/lib/api'
@@ -46,7 +45,7 @@ export default function CategoryPage() {
   }, [slugStr])
 
   return (
-    <Layout title={`Category - ${slugStr} - Dropshipping Tunisia`} description={`Browse ${slugStr} products.`}>
+    <>
       <Head>
         <title>{slugStr} - Dropshipping Tunisia</title>
         <meta name="description" content={`Browse ${slugStr} products at the best prices.`} />
@@ -78,6 +77,6 @@ export default function CategoryPage() {
           </>
         )}
       </div>
-    </Layout>
+    </>
   )
 }

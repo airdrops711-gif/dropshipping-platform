@@ -1,10 +1,9 @@
 import Link from 'next/link'
-import Layout from '../components/Layout'
 import Head from 'next/head'
 
 export default function Contact() {
   return (
-    <Layout>
+    <>
       <Head>
         <title>Contact - Dropshipping Tunisia</title>
         <meta name="description" content="Contact Dropshipping Tunisia for support, questions, or inquiries. We're here to help." />
@@ -60,6 +59,6 @@ export default function Contact() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

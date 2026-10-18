@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
@@ -46,7 +45,7 @@ export default function AccountPage() {
   }
 
   return (
-    <Layout title="Account - Dropshipping Tunisia">
+    <>
       <Head>
         <title>Account - Dropshipping Tunisia</title>
         <meta name="description" content="Sign in or create your account." />
@@ -148,6 +147,6 @@ export default function AccountPage() {
           </p>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

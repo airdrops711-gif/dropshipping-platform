@@ -1,5 +1,4 @@
 import { useSearchParams } from 'next/navigation'
-import Layout from '@/components/Layout'
 import ProductGrid from '@/components/ProductGrid'
 import Head from 'next/head'
 import { api } from '@/lib/api'
@@ -32,7 +31,7 @@ export default function ProductsPage() {
   }, [category, search])
 
   return (
-    <Layout title="Products - Dropshipping Tunisia" description="Browse our catalog of quality products at the best prices.">
+    <>
       <Head>
         <title>Products - Dropshipping Tunisia</title>
         <meta name="description" content="Browse our catalog of quality products at the best prices." />
@@ -61,6 +60,6 @@ export default function ProductsPage() {
           <ProductGrid products={products} />
         )}
       </div>
-    </Layout>
+    </>
   )
 }

@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Layout from '../components/Layout'
 import Head from 'next/head'
 
 export default function Deals() {
@@ -11,7 +10,7 @@ export default function Deals() {
   ]
 
   return (
-    <Layout>
+    <>
       <Head>
         <title>Deals - Dropshipping Tunisia</title>
         <meta name="description" content="Best discounts and limited-time offers on quality products in Tunisia." />
@@ -51,6 +50,6 @@ export default function Deals() {
           ))}
         </div>
       </div>
-    </Layout>
+    </>
   )
 }

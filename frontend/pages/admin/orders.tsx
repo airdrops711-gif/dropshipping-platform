@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import Layout from '@/components/Layout'
 import Head from 'next/head'
 import { api } from '@/lib/api'
 import { useAuth } from '@/context/AuthContext'
@@ -57,7 +56,7 @@ export default function AdminOrders() {
   }
 
   return (
-    <Layout title="Order Management - Admin">
+    <>
       <Head>
         <title>Order Management - Admin Panel</title>
         <meta name="description" content="Manage orders in the admin panel." />
@@ -127,6 +126,6 @@ export default function AdminOrders() {
           </div>
         </div>
       </div>
-    </Layout>
+    </>
   )
 }
