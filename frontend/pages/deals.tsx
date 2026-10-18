@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { NextSeo } from 'next-seo'
+import Head from 'next/head'
 
 export default function Deals() {
   const deals = [
@@ -12,7 +12,10 @@ export default function Deals() {
 
   return (
     <Layout>
-      <NextSeo title="Deals - Dropshipping Tunisia" />
+      <Head>
+        <title>Deals - Dropshipping Tunisia</title>
+        <meta name="description" content="Best discounts and limited-time offers on quality products in Tunisia." />
+      </Head>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Deals of the Day</h1>
         <p className="text-gray-600 mb-8">Best discounts and limited-time offers</p>

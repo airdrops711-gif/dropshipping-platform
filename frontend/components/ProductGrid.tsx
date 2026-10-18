@@ -1,35 +1,57 @@
 interface Product {
-  id: number
+  id: number | string
   name: string
+  nameAr?: string
   price: number
   currency: string
   image: string
-  rating: number
+  rating?: number
+  discount?: number
 }
 
 export default function ProductGrid({ products }: { products: Product[] }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
       {products.map((product) => (
         <a
           key={product.id}
           href={`/products/${product.id}`}
-          className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+          className="group block"
         >
-          <div className="relative w-full aspect-square bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-            <span className="text-4xl sm:text-6xl">📦</span>
-          </div>
-          <div className="p-3 sm:p-4">
-            <h3 className="font-bold text-gray-800 text-sm sm:text-base group-hover:text-blue-600 transition-colors line-clamp-2">
-              {product.name}
-            </h3>
-            <div className="flex items-center justify-between mt-2">
-              <span className="text-base sm:text-lg font-bold text-gray-900">
-                {product.price} {product.currency}
+          <div className="card">
+            {product.discount && (
+              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                -{product.discount}%
               </span>
-              <div className="flex items-center">
-                <span className="text-yellow-400 text-sm">★</span>
-                <span className="text-xs sm:text-sm text-gray-500 ml-1">{product.rating}</span>
+            )}
+            <div className="relative h-48 sm:h-56 overflow-hidden bg-gray-100">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-bold text-gray-900 text-sm sm:text-base line-clamp-2 mb-2 group-hover:text-blue-600 transition-colors">
+                {product.name}
+              </h3>
+              {product.nameAr && (
+                <p className="text-xs text-gray-500 mb-3">{product.nameAr}</p>
+              )}
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-bold text-gray-900 text-sm sm:text-base">
+                  {product.price} {product.currency}
+                </span>
+                {product.discount && (
+                  <span className="text-sm text-gray-400 line-through">
+                    {Math.round(product.price / (1 - product.discount / 100))} {product.currency}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-yellow-400 text-xs">★</span>
+                <span className="text-xs text-gray-600">{product.rating ?? 4.5}</span>
               </div>
             </div>
           </div>

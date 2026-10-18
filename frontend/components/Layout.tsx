@@ -2,28 +2,24 @@ import { ReactNode } from 'react'
 import Head from 'next/head'
 import Header from './Header'
 import Footer from './Footer'
-import { useRouter } from 'next/router'
 
 interface LayoutProps {
   children: ReactNode
+  title?: string
+  description?: string
 }
 
-export default function Layout({ children }: LayoutProps) {
-  const router = useRouter()
-  const isRtl = router.locale === 'ar'
-
+export default function Layout({ children, title, description }: LayoutProps) {
   return (
-    <div className={isRtl ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex flex-col">
       <Head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#2563eb" />
+        <title>{title ? `${title} | Dropshipping Tunisia` : 'Dropshipping Tunisia'}</title>
+        <meta name="description" content={description || 'Best products at the best prices with fast delivery across Tunisia.'} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </Head>
       <Header />
-      <main className="min-h-screen bg-gray-50">
-        {children}
-      </main>
+      <main className="flex-grow bg-gray-50">{children}</main>
       <Footer />
     </div>
   )

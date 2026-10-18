@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import Layout from '../components/Layout'
-import { NextSeo } from 'next-seo'
+import Head from 'next/head'
 
 export default function Contact() {
   return (
     <Layout>
-      <NextSeo title="Contact - Dropshipping Tunisia" />
+      <Head>
+        <title>Contact - Dropshipping Tunisia</title>
+        <meta name="description" content="Contact Dropshipping Tunisia for support, questions, or inquiries. We're here to help." />
+      </Head>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-6">Contact Us</h1>
         <div className="grid md:grid-cols-2 gap-8">

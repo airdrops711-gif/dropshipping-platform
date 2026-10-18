@@ -1,97 +1,116 @@
-import { useState } from 'react'
+'use client'
+
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useState } from 'react'
+import { Menu, X, ShoppingCart, Search, User, ChevronDown } from 'lucide-react'
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const router = useRouter()
-
-  const toggleLanguage = () => {
-    const newLocale = router.locale === 'en' ? 'ar' : 'en'
-    router.push(router.pathname, router.asPath, { locale: newLocale })
-  }
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/categories', label: 'Categories' },
-    { href: '/deals', label: 'Deals' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
+    { name: 'Home', href: '/' },
+    { name: 'Categories', href: '/categories' },
+    { name: 'Deals', href: '/deals' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
   ]
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-3">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg sm:text-xl">
-              DT
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">DT</span>
             </div>
-            <span className="text-lg sm:text-xl font-bold text-gray-800 hidden sm:block">Dropshipping Tunisia</span>
+            <span className="font-bold text-xl text-gray-900 tracking-tight">Dropshipping Tunisia</span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex space-x-6 lg:space-x-8">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.name}
                 href={link.href}
-                className={`text-sm lg:text-base font-medium transition-colors hover:text-blue-600 ${
-                  router.pathname === link.href
-                    ? 'text-blue-600 border-b-2 border-blue-600'
-                    : 'text-gray-700'
-                }`}
+                className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
               >
-                {link.label}
+                {link.name}
               </Link>
             ))}
+            <Link href="/cart" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1">
+              <ShoppingCart className="w-4 h-4" /> Cart
+            </Link>
           </nav>
 
-          <div className="flex items-center space-x-2">
+          {/* Actions */}
+          <div className="flex items-center gap-4">
             <button
-              onClick={toggleLanguage}
-              className="p-2 rounded hover:bg-gray-100 text-sm font-medium"
-              aria-label="Toggle Language"
+              onClick={() => setSearchOpen(true)}
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+              aria-label="Search"
             >
-              {router.locale === 'en' ? 'العربية' : 'English'}
+              <Search className="w-5 h-5" />
             </button>
-            {/* Mobile menu button */}
+            <Link href="/account" className="text-gray-600 hover:text-blue-600 transition-colors" aria-label="Account">
+              <User className="w-5 h-5" />
+            </Link>
             <button
-              className="md:hidden p-2 rounded hover:bg-gray-100"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden text-gray-600 hover:text-blue-600"
+              aria-label="Open menu"
             >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {isMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
-
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-200 mt-2">
-            <nav className="flex flex-col space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-3 py-2 rounded text-base font-medium transition-colors hover:bg-gray-100 ${
-                    router.pathname === link.href ? 'text-blue-600 bg-blue-50' : 'text-gray-700'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-gray-100">
+          <div className="px-4 pt-2 pb-6 space-y-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Link
+              href="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 flex items-center gap-2"
+            >
+              <ShoppingCart className="w-4 h-4" /> Cart
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Search Overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[60] bg-gray-900/90 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              className="w-full px-6 py-4 bg-white text-gray-900 text-xl rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoFocus
+            />
+            <button
+              onClick={() => setSearchOpen(false)}
+              className="absolute right-6 top-6 text-gray-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
