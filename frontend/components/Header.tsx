@@ -89,12 +89,6 @@ export default function Header() {
             </button>
           </div>
         </div>
-      </header>
-    )
-  }
-}
-          </div>
-        </div>
       </div>
 
       {/* Mobile Menu */}
