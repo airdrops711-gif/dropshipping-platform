@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN playwright install chromium --with-deps
+RUN playwright install chromium
 
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
