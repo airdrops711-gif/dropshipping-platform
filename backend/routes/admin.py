@@ -10,7 +10,7 @@ from database import get_db, User, Product, Category, Order, OrderItem, Scraping
 from schemas import ProductCreate, ProductUpdate, ProductResponse, CategoryResponse, SupplierResponse
 from auth_utils import decode_access_token
 
-router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
+router = APIRouter(tags=["admin"])
 security = HTTPBearer()
 
 
